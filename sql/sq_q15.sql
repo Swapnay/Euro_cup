@@ -4,5 +4,12 @@ FROM referee_mast r
 INNER JOIN match_mast m ON r.referee_id = m.referee_id
 INNER JOIN player_booked p ON p.match_no = m.match_no
 GROUP BY r.referee_name
-ORDER BY bookings DESC
-limit 1;
+HAVING count(bookings)=
+  (SELECT max(bookings)
+   FROM
+     (SELECT count(p.player_id) AS bookings
+        FROM referee_mast r
+        INNER JOIN match_mast m ON r.referee_id = m.referee_id
+        INNER JOIN player_booked p ON p.match_no = m.match_no
+        GROUP BY r.referee_name) bb);
+
